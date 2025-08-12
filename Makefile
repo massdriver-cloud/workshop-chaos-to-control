@@ -1,4 +1,4 @@
-.PHONY: all publish-bundles publish-artifacts clean lambda-image
+.PHONY: all publish-bundles publish-artifacts clean
 
 # Default target - runs all publishing tasks
 all: publish-artifacts publish-bundles clean
@@ -38,7 +38,3 @@ help:
 	@echo "  publish-artifacts - Publish all artifact definitions in artifact-definitions/"
 	@echo "  clean             - Remove schema-*.json build files" 	
 	@echo "  help              - Show this help message" 
-
-lambda-image:
-	cd bundles/aws-ctc-lambda/src && docker build -t massdrivercloud/aws-ddb-collab-demo:latest . && docker push massdrivercloud/aws-ddb-collab-demo:latest
-		

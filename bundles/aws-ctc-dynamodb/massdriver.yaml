@@ -348,5 +348,5 @@ steps:
     provisioner: opentofu:1.10
     config:
       checkov:
-        enabled: false
-        # halt_on_failure: '.params.md_metadata.default_tags["md-target"] == "prod"'
+        enable: true
+        halt_on_failure: '.params.md_metadata.default_tags["md-target"] == "prod"'
