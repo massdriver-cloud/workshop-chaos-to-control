@@ -56,9 +56,3 @@ variable "ttl" {
     enabled = bool
   })
 }
-variable "budget" {
-  type = object({
-    limit_amount    = number
-    email_addresses = list(string)
-  })
-}
