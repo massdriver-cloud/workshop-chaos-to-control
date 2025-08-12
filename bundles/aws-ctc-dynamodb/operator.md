@@ -1,3 +1,6 @@
+## TODO: Add Runbook
+
+<!-- MODULE_2.2 
 ## AWS DynamoDB Table
 
 Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability. DynamoDB lets you offload the administrative burdens of operating and scaling a distributed database, so you don't have to worry about hardware provisioning, setup and configuration, replication, software patching, or cluster scaling.
@@ -107,4 +110,4 @@ aws dynamodb update-time-to-live --table-name <table_name> --time-to-live-specif
 This will automatically delete items based on the TTL attribute once the attribute’s value is older than the current UNIX timestamp.
 
 These commands will help you monitor and troubleshoot your AWS DynamoDB tables, ensuring they are running optimally and cost-efficiently.
-
+-->

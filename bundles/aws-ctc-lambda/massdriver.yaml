@@ -126,10 +126,11 @@ params:
     policy:
       title: DynamoDB IAM Policy
       type: string
-      $md.enum:
-        connection: "dynamodb"
-        options: ".data.security.iam | keys"
-        label: "ascii_upcase"       
+      ## MODULE_3.1
+      # $md.enum:
+      #   connection: "dynamodb"
+      #   options: ".data.security.iam | keys"
+      #   label: "ascii_upcase"
 
 connections:
   required:

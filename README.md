@@ -15,6 +15,10 @@ Before starting this workshop, ensure you have:
 - **Massdriver Service Account & CLI Setup**: Follow the [official CLI setup documentation](https://docs.massdriver.cloud/cli/overview) to create a service account and configure CLI authentication
 - **AWS Account**: Valid AWS account with appropriate permissions
 
+> **💡 Workshop Tip**: If you get stuck on any module tasks, you can search the codebase for `MODULE_` to find commented-out solutions. For example, `grep -r "MODULE_" .` or use your editor's search to find hints and complete implementations for each workshop exercise.
+> 
+> **📋 Complete Solution**: The `completed` branch contains the fully implemented workshop with all tasks completed. You can reference it anytime with `git checkout completed` or compare your progress with `git diff completed`.
+
 ---
 
 ## Repository Structure

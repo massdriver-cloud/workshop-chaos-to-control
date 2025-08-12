@@ -4,19 +4,20 @@ description: "DynamoDB Table - Workshop: From Chaos to Control"
 type: infrastructure
 
 params:
-  examples:
-    - __name: Free Tier
-      region: us-west-2
-      capacity:
-        billing_mode: PROVISIONED
-        read_capacity: 25
-        write_capacity: 25
-    - __name: Production
-      region: us-west-2
-      capacity:
-        billing_mode: PAY_PER_REQUEST
-      pitr:
-        enabled: true
+  ## MODULE_1.1
+  # examples:
+  #   - __name: Free Tier
+  #     region: us-west-2
+  #     capacity:
+  #       billing_mode: PROVISIONED
+  #       read_capacity: 25
+  #       write_capacity: 25
+  #   - __name: Production
+  #     region: us-west-2
+  #     capacity:
+  #       billing_mode: PAY_PER_REQUEST
+  #     pitr:
+  #       enabled: true
 
   required:
     - region
@@ -29,36 +30,39 @@ params:
   properties:
     region:
       $ref: ../../components/aws/region.json
-      $md.immutable: true
-      enum:
-      - us-east-1
-      - us-west-2
-      - us-west-1
+      ## MODULE_1.3
+      # enum:
+      # - us-east-1
+      # - us-west-2
+      # - us-west-1
+      ## MODULE_1.4
+      # $md.immutable: true      
     capacity:
       type: object
       title: Capacity
-      dependencies:
-        billing_mode:
-          oneOf:
-            - properties:
-                billing_mode:
-                  const: PROVISIONED
-                read_capacity:
-                  type: integer
-                  title: Read Capacity
-                  minimum: 1
-                  maximum: 3000
-                write_capacity:
-                  type: integer
-                  title: Write Capacity
-                  minimum: 1
-                  maximum: 1000
-              required:
-                - read_capacity
-                - write_capacity
-            - properties:
-                billing_mode:
-                  const: PAY_PER_REQUEST
+      ## MODULE_1.2
+      # dependencies:
+      #   billing_mode:
+      #     oneOf:
+      #       - properties:
+      #           billing_mode:
+      #             const: PROVISIONED
+      #           read_capacity:
+      #             type: integer
+      #             title: Read Capacity
+      #             minimum: 1
+      #             maximum: 3000
+      #           write_capacity:
+      #             type: integer
+      #             title: Write Capacity
+      #             minimum: 1
+      #             maximum: 1000
+      #         required:
+      #           - read_capacity
+      #           - write_capacity
+      #       - properties:
+      #           billing_mode:
+      #             const: PAY_PER_REQUEST
       properties:
         billing_mode:
           type: string
@@ -300,8 +304,9 @@ params:
           type: boolean
           title: Enable
           default: false
-    budget:
-      $ref: ../../components/aws/budget.json
+    ## MODULE_2.4          
+    # budget:
+    #   $ref: ../../components/aws/budget.json
 
 connections:
   required:
@@ -346,7 +351,8 @@ steps:
   # See full config options at https://github.com/massdriver-cloud/provisioner-opentofu
   - path: src
     provisioner: opentofu:1.10
-    config:
-      checkov:
-        enabled: false
-        # halt_on_failure: '.params.md_metadata.default_tags["md-target"] == "prod"'
+    ## MODULE_2.3
+    # config:
+    #   checkov:
+    #     enable: true
+    #     halt_on_failure: '.params.md_metadata.default_tags["md-target"] == "prod"'
