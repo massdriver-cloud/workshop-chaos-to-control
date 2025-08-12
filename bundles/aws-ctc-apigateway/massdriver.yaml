@@ -1,0 +1,216 @@
+schema: draft-07
+name: aws-ctc-apigateway
+description: "API Gateway Rest API - Workshop: From Chaos to Control"
+type: "infrastructure"
+
+steps:
+  - path: src
+    provisioner: opentofu:1.10
+
+CloudWatchAlarmMetricInteger: &cloudwatch_alarm_metric_integer
+  required:
+    - threshold
+    - period
+  properties:
+    threshold:
+      type: integer
+      title: Threshold
+    period:
+      type: integer
+      title: Period
+      minimum: 1
+      maximum: 86400
+      default: 300
+      description: The length of time associated with this statistic
+
+CloudWatchAlarmMetricFloat: &cloudwatch_alarm_metric_float
+  required:
+    - threshold
+    - period
+  properties:
+    threshold:
+      type: number
+      title: Threshold
+    period:
+      type: integer
+      title: Period
+      minimum: 1
+      maximum: 86400
+      default: 300
+      description: The length of time associated with this statistic
+
+params:
+  examples:
+    - __name: Wizard
+      rest_api:
+        endpoint_configuration: REGIONAL
+        region: us-west-2
+        stage_name: live
+      dns:
+        enabled: false
+      monitoring:
+        mode: AUTOMATED
+    - __name: Edge Optimized
+      rest_api:
+        endpoint_configuration: EDGE
+    - __name: Regional
+      rest_api:
+        endpoint_configuration: REGIONAL
+  required:
+    - rest_api
+    - dns
+  properties:
+    rest_api:
+      type: object
+      title: REST API
+      description: API GATEWAY general configuration
+      required:
+        - region
+        - endpoint_configuration
+        - stage_name
+      properties:
+        region:
+          $ref: ../../components/aws/region.json
+          $md.immutable: true
+        endpoint_configuration:
+          type: string
+          title: Endpoint Configuration
+          description: "API Gateways can be region bound, or edge optimized which will create a global presence."
+          $md.immutable: true
+          enum:
+            - EDGE
+            - REGIONAL
+        stage_name:
+          type: string
+          title: Stage Name
+          description: Deployments of API gateway are tied to a stage
+          default: live
+    dns:
+      type: object
+      title: DNS
+      description: Configuration to enable custom DNS and SSL Certs
+      dependencies:
+        enabled:
+          oneOf:
+            - properties:
+                enabled:
+                  const: false
+            - properties:
+                enabled:
+                  const: true
+                hosted_zone:
+                  type: string
+                  title: Route53 Hosted Zone
+                  description: Creates an A record in your hosted zone for the selected subdomain
+                  $md.immutable: true
+                  $ref: ../../components/aws/arn.json
+                sub_domain:
+                  title: Sub Domain
+                  description: Prefix added to the hosted zone's domain where you can access your API Gateway via DNS.
+                  type: string
+                  $md.immutable: false
+                  pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]))*$
+                  message:
+                    pattern: Hostname should consist of letters, numbers, and hyphens, such as staging-env
+              required:
+                - hosted_zone
+                - sub_domain
+      properties:
+        enabled:
+          type: boolean
+          title: Enable DNS and SSL
+          description: Enabling this option will allow you to define DNS for your API Gateway
+          default: true
+    monitoring:
+      type: object
+      title: Monitoring
+      properties:
+        mode:
+          title: Alarm Mode
+          description: Enable and customize APIGateway metric alarms.
+          # TODO: back this to a type to keep it consistent across bundles
+          type: string
+          default: AUTOMATED
+          oneOf:
+            - const: AUTOMATED
+              title: Automated
+            - const: CUSTOM
+              title: Custom
+            - const: DISABLED
+              title: Disabled
+      dependencies:
+        mode:
+          oneOf:
+            - properties:
+                mode:
+                  const: AUTOMATED
+            - properties:
+                mode:
+                  const: DISABLED
+            - properties:
+                mode:
+                  const: CUSTOM
+                alarms:
+                  type: object
+                  title: Alarms
+                  properties:
+                    client_errors:
+                      title: 4XXError Percent
+                      description: "Unit: SUM"
+                      type: object
+                      <<: *cloudwatch_alarm_metric_float
+                    server_errors:
+                      title: 5XXError Percent
+                      description: "Unit: SUM"
+                      type: object
+                      <<: *cloudwatch_alarm_metric_float
+                    latency:
+                      title: Request Latency
+                      description: "Total latency from client request to response including AWS integration latency. Unit: Seconds"
+                      type: object
+                      <<: *cloudwatch_alarm_metric_integer
+
+connections:
+  required:
+    - aws_authentication
+  properties:
+    aws_authentication:
+      $ref: massdriver/aws-iam-role
+
+artifacts:
+  required:
+    - api_gateway
+  properties:
+    api_gateway:
+      $ref: massdriver/aws-api-gateway-rest-api
+
+ui:
+  ui:order:
+    - "rest_api"
+    - "dns"
+    - "monitoring"
+  rest_api:
+    ui:order:
+      - region
+      - endpoint_configuration
+      - stage_name
+    region:
+      ui:field: supportedCloudLocationsDropdown
+      cloudService: aws
+  dns:
+    ui:order:
+      - enabled
+      - hosted_zone
+      - sub_domain
+    hosted_zone:
+      ui:field: dnsZonesDropdown
+      cloud: aws
+  monitoring:
+    ui:order:
+      - mode
+      - alarms
+    alarms:
+      latency:
+        threshold:
+          ui:field: conversionFieldTime
+          unit: Milliseconds

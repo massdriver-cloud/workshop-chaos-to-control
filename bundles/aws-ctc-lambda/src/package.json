@@ -1,0 +1,9 @@
+{
+  "name": "hotels-api",
+  "version": "1.0.0",
+  "description": "Serverless API for hotels management",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.1450.0"
+  }
+} 

@@ -1,0 +1,4 @@
+
+skip-check:
+  - CKV_AWS_119  # Using AWS default KMS key - ok for now
+  - CKV_AWS_26   # SNS topic encryption should be handled by that module.

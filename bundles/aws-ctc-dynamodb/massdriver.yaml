@@ -1,0 +1,352 @@
+schema: draft-07
+name: aws-ctc-dynamodb
+description: "DynamoDB Table - Workshop: From Chaos to Control"
+type: infrastructure
+
+params:
+  examples:
+    - __name: Free Tier
+      region: us-west-2
+      capacity:
+        billing_mode: PROVISIONED
+        read_capacity: 25
+        write_capacity: 25
+    - __name: Production
+      region: us-west-2
+      capacity:
+        billing_mode: PAY_PER_REQUEST
+      pitr:
+        enabled: true
+
+  required:
+    - region
+    - capacity
+    - primary_index
+    - global_secondary_indexes
+    - stream
+    - ttl
+    - pitr
+  properties:
+    region:
+      $ref: ../../components/aws/region.json
+      $md.immutable: true
+      enum:
+      - us-east-1
+      - us-west-2
+      - us-west-1
+    capacity:
+      type: object
+      title: Capacity
+      dependencies:
+        billing_mode:
+          oneOf:
+            - properties:
+                billing_mode:
+                  const: PROVISIONED
+                read_capacity:
+                  type: integer
+                  title: Read Capacity
+                  minimum: 1
+                  maximum: 3000
+                write_capacity:
+                  type: integer
+                  title: Write Capacity
+                  minimum: 1
+                  maximum: 1000
+              required:
+                - read_capacity
+                - write_capacity
+            - properties:
+                billing_mode:
+                  const: PAY_PER_REQUEST
+      properties:
+        billing_mode:
+          type: string
+          title: Billing Mode
+          default: PAY_PER_REQUEST
+          enum:
+            - PAY_PER_REQUEST
+            - PROVISIONED
+    primary_index:
+      type: object
+      title: Primary Index
+      dependencies:
+        type:
+          oneOf:
+            - properties:
+                type:
+                  const: compound
+                partition_key:
+                  type: string
+                  title: Partition Key
+                  $md.immutable: true
+                partition_key_type:
+                  type: string
+                  title: Partition Key Type
+                  $md.immutable: true
+                  oneOf:
+                  - title: String
+                    const: S
+                  - title: Number
+                    const: N
+                  - title: Binary
+                    const: B  
+                sort_key:
+                  type: string
+                  title: Sort Key
+                  $md.immutable: true
+                sort_key_type:
+                  type: string
+                  title: Sort Key Type
+                  $md.immutable: true
+                  oneOf:
+                  - title: String
+                    const: S
+                  - title: Number
+                    const: N
+                  - title: Binary
+                    const: B
+              required:
+                - partition_key
+                - partition_key_type
+                - sort_key
+                - sort_key_type
+            - properties:
+                type:
+                  const: simple
+                partition_key:
+                  type: string
+                  title: Partition Key
+                  $md.immutable: true
+                partition_key_type:
+                  type: string
+                  title: Partition Key Type
+                  $md.immutable: true
+                  oneOf:
+                  - title: String
+                    const: S
+                  - title: Number
+                    const: N
+                  - title: Binary
+                    const: B
+              required:
+                - partition_key
+                - partition_key_type
+      properties:
+        type:
+          type: string
+          title: Type
+          default: simple
+          $md.immutable: true
+          enum:
+            - simple
+            - compound
+
+    global_secondary_indexes:
+      type: array
+      title: Global Secondary Indexes
+      items:
+        type: object
+        title: Index
+        required:
+          - name
+          - projection_type
+          - read_capacity
+          - write_capacity
+        properties:
+          name:
+            type: string
+            description: Index name for queries
+            title: Index Name
+          projection_type:
+            type: string
+            description: Represents the non-key attribute names which will be projected into the index.
+            title: Projection Type
+            default: ALL
+            enum:
+              - ALL
+              - KEYS_ONLY
+              - INCLUDE
+          read_capacity:
+            type: integer
+            title: Read Capacity
+            minimum: 1
+            maximum: 3000
+          write_capacity:
+            type: integer
+            title: Write Capacity
+            minimum: 1
+            maximum: 1000
+          attributes:
+            title: Attributes
+            dependencies:
+              type:
+                oneOf:
+                  - properties:
+                      type:
+                        const: compound
+                      partition_key:
+                        type: string
+                        title: Partition Key
+                      partition_key_type:
+                        type: string
+                        title: Partition Key Type
+                        oneOf:
+                        - title: String
+                          const: S
+                        - title: Number
+                          const: N
+                        - title: Binary
+                          const: B
+                      sort_key:
+                        type: string
+                        title: Sort Key
+                      sort_key_type:
+                        type: string
+                        title: Sort Key Type
+                        oneOf:
+                        - title: String
+                          const: S
+                        - title: Number
+                          const: N
+                        - title: Binary
+                          const: B
+
+                    required:
+                      - partition_key
+                      - partition_key_type
+                      - sort_key
+                      - sort_key_type
+                  - properties:
+                      type:
+                        const: simple
+
+                      partition_key:
+                        type: string
+                        title: Partition Key
+                      partition_key_type:
+                        type: string
+                        title: Partition Key Type
+                        oneOf:
+                        - title: String
+                          const: S
+                        - title: Number
+                          const: N
+                        - title: Binary
+                          const: B
+
+
+                    required:
+                      - partition_key
+                      - partition_key_type
+            properties:
+              type:
+                type: string
+                title: Type
+                default: simple
+                enum:
+                  - simple
+                  - compound
+
+    stream:
+      type: object
+      title: DynamoDB Streams
+      description: Enable the emission of all changes to the database to a DynamoDB stream which can be consumed by a downstream service.
+      required:
+        - enabled
+      dependencies:
+        enabled:
+          oneOf:
+            - properties:
+                enabled:
+                  const: true
+                view_type:
+                  type: string
+                  default: NEW_IMAGE
+                  enum:
+                    - KEYS_ONLY
+                    - NEW_IMAGE
+                    - OLD_IMAGE
+                    - NEW_AND_OLD_IMAGES
+              required:
+                - view_type
+            - properties:
+                enabled:
+                  const: false
+      properties:
+        enabled:
+          type: boolean
+          default: false
+          title: Enable
+    ttl:
+      type: object
+      title: TTL
+      description: Allows you to define a per-item timestamp to determine when an item is no longer needed. Shortly after the date and time of the specified timestamp, DynamoDB deletes the item from your table without consuming any write throughput. This value will be stored as a key called 'TTL'
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+          title: Enable
+          default: false
+    pitr:
+      type: object
+      title: Point-in-time Recovery
+      description: Enable point-in-time recovery for your DynamoDB table.
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+          title: Enable
+          default: false
+    budget:
+      $ref: ../../components/aws/budget.json
+
+connections:
+  required:
+    - authentication
+  properties:
+    authentication:
+      $ref: massdriver/aws-iam-role
+
+artifacts:
+  required:
+    - table
+  properties:
+    table:
+      $ref: massdriver/aws-dynamodb-table
+    stream:
+      $ref: massdriver/aws-dynamodb-stream
+
+ui:
+  ui:order:
+    - region
+    - capacity
+    - primary_index
+    - global_secondary_indexes
+    - ttl
+    - stream
+    - pitr
+    - budget
+  budget:
+    ui:order:
+      - limit_amount
+      - '*'
+  global_secondary_indexes:
+    items:
+      ui:order:
+        - name
+        - attributes
+        - read_capacity
+        - write_capacity
+        - projection_type
+
+steps:
+  # See full config options at https://github.com/massdriver-cloud/provisioner-opentofu
+  - path: src
+    provisioner: opentofu:1.10
+    config:
+      checkov:
+        enabled: false
+        # halt_on_failure: '.params.md_metadata.default_tags["md-target"] == "prod"'
