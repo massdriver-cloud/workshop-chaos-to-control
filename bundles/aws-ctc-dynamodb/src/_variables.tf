@@ -20,14 +20,19 @@ variable "capacity" {
 }
 variable "global_secondary_indexes" {
   type = list(object({
-    attributes      = optional(any)
+    attributes = optional(object({
+      type               = optional(string)
+      partition_key      = optional(string)
+      partition_key_type = optional(string)
+      sort_key           = optional(string)
+      sort_key_type      = optional(string)
+    }))
     name            = string
     projection_type = string
     read_capacity   = number
     write_capacity  = number
   }))
 }
-
 variable "pitr" {
   type = object({
     enabled = bool

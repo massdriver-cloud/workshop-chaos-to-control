@@ -182,6 +182,7 @@ params:
             minimum: 1
             maximum: 1000
           attributes:
+            type: object
             title: Attributes
             dependencies:
               type:

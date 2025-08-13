@@ -12,7 +12,7 @@
 Before starting this workshop, ensure you have:
 
 - **Massdriver Account**: Register for a [14-day free trial](https://app.massdriver.cloud/register)
-- **Massdriver Service Account & CLI Setup**: Follow the [official CLI setup documentation](https://docs.massdriver.cloud/cli/overview) to create a service account and configure CLI authentication
+- **Massdriver Service Account & CLI Setup**: Follow the [official CLI setup documentation](https://docs.massdriver.cloud/cli/overview) to create a service account and configure CLI authentication - **CLI Version > 1.11.8 is required.**-
 - **AWS Account**: Valid AWS account with appropriate permissions
 
 > **💡 Workshop Tip**: If you get stuck on any module tasks, you can search the codebase for `MODULE_` to find commented-out solutions. For example, `grep -r "MODULE_" .` or use your editor's search to find hints and complete implementations for each workshop exercise.
